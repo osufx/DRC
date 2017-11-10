@@ -157,8 +157,9 @@ class IRCClientBot(IRCClientUser):
 		
 		#TODO: Forward message to discord
 		try:
-			webhook = 
-			req = requests.post("{}/slack".format(webhook), data=query)
+			#webhook = 
+			#req = requests.post("{}/slack".format(webhook), data=query)
+			pass
 		except err:
 			pass
 
@@ -172,9 +173,9 @@ class IRCClientBot(IRCClientUser):
 LoadFromDatabase()
 
 #Setup highlight table
-for key in accounts.keys():
-	if accounts[key].highlights != None:
-		for highlight in accounts[key].highlights:
+for key in irc_clients.keys():
+	if irc_clients[key].highlights != None:
+		for highlight in irc_clients[key].highlights:
 			highlight_list[highlight] = "<@{}>".format(key)
 
 print("{} : {}".format(len(irc_clients), irc_clients))
