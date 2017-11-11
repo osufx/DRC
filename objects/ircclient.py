@@ -5,6 +5,16 @@ import discord
 from objects import glob
 from objects import discordbot
 
+def sawait(coro, loop): #Thanks Nyo-chan <3
+    """
+    Runs a coroutine in IOLoop `loop` in a synchronous function
+
+    :param coro: future
+    :param loop: IOLoop
+    :return:
+    """
+    return asyncio.run_coroutine_threadsafe(coro, loop).result()
+
 class Reconnect(irc.bot.ReconnectStrategy):
 	def run(self, bot):
 		if not bot.connection.is_connected():
@@ -43,12 +53,12 @@ class IRCClientUser(IRCClient):
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
 		for msg in e.arguments:
-			discordbot.HandleMessage(self, e.target, e.source, msg) #TODO: handle async func
+			sawait(discordbot.HandleMessage(self, e.target, e.source, msg), glob.discordloop)
 	
 	def send_message(self, channel, msg):
 		self.connection.privmsg(channel, msg)
 	
-	def getPermissionOverwrite(self):	#TODO: return permission for xategory creation
+	def getPermissionOverwrite(self):	#TODO: return permission for category creation
 		return None
 
 
@@ -59,7 +69,7 @@ class IRCClientBot(IRCClientUser):
 	def on_pubmsg(self, c, e):
 		IRCClient.on_pubmsg(self, c, e)
 		for msg in e.arguments:
-			discordbot.HandleMessage(self, e.target, e.source, msg) #TODO: handle async func
+			sawait(discordbot.HandleMessage(self, e.target, e.source, msg), glob.discordloop)
 
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
