@@ -39,6 +39,8 @@ async def on_message(msg):
 		await msg.delete()
 
 async def HandleMessage(ircclient, channel, user, message):
+	channel = channel.lower()		#Discord channels only accept lowercase
+	user = user.lower()				#^
 	message = message.replace("@", "(@)")		#Quickfix to disable highlights
 	
 	private = True
@@ -59,32 +61,34 @@ async def HandleMessage(ircclient, channel, user, message):
 			if not any(x.name in ircclient.usr_name for x in cats):
 				cat = await c.create_category(ircclient.usr_name) #ADD: overwrites=self.getPermissionOverwrite()
 			else:
-				cat = (c for x in cats if x.name == ircclient.usr_name) #cats[self.usr_name]
-			
-			if not any(x.name in channel for x in cat.channels):
-				chan = await c.create_text_channel(chan, category=cat)
+				cat = next(x for x in cats if x.name == ircclient.usr_name)
+
+			if not any(x.name in user for x in cat.channels):
+				chan = await c.create_text_channel(user, category=cat)
 			else:
-				chan = (c for x in cat if x.name == channel) #cat[channel]
-			
-			if len(chan.webhooks()) == 0:
-				hook = await chan.create_webhook(ircclient.channel)
+				chan = next(x for x in cat.channels if x.name == user)
+
+			hooks = await chan.webhooks()
+			if len(hooks) == 0:
+				hook = await chan.create_webhook(name="{}/{}".format(cat.name, chan.name))
 			else:
-				hook = chan.webhooks()[0]
+				hook = hooks[0]
 		else:
 			if not any(x.name in glob.settings["discord_main_category"] for x in cats):
 				cat = await c.create_category(glob.settings["discord_main_category"]) #ADD: overwrites=self.getPermissionOverwrite()
 			else:
-				cat = (c for x in cats if x.name == glob.settings["discord_main_category"]) #cats[glob.settings["discord_main_category"]]
+				cat = next(x for x in cats if x.name == glob.settings["discord_main_category"])
 			
 			if not any(x.name in channel for x in cat.channels):
-				chan = await c.create_text_channel(chan, category=cat)
+				chan = await c.create_text_channel(channel, category=cat)
 			else:
-				chan = (c for x in cat if x.name == channel) #cat[channel]
+				chan = next(x for x in cat.channels if x.name == channel)
 			
-			if len(chan.webhooks()) == 0:
-				hook = await chan.create_webhook(ircclient.channel)
+			hooks = await chan.webhooks()
+			if len(hooks) == 0:
+				hook = await chan.create_webhook(name="#{}".format(chan.name))
 			else:
-				hook = chan.webhooks()[0]
+				hook = hooks[0]
 
 		message = DiscordMessage(user, message) #Convert to discordmessage object for json serialization
 		query = json.dumps(message.__dict__)
