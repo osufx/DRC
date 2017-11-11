@@ -11,5 +11,4 @@ glob.sql.LoadFromDatabase()
 for client in glob.irc_clients.values():
 	Thread(target=client.start).start()
 
-print("Everything is running \\o/")
 glob.discordclient.run(glob.settings["discord_token"])
