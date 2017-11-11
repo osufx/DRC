@@ -1,6 +1,9 @@
 import irc.bot
 import irc.strings
+import asyncio
+import discord
 from objects import glob
+from objects import discordbot
 
 class Reconnect(irc.bot.ReconnectStrategy):
 	def run(self, bot):
@@ -39,10 +42,14 @@ class IRCClientUser(IRCClient):
 	
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
-		#TODO: Make discord channel inside the category (Do not assume it already exist even if it is created as users can delete them at any time)
+		for msg in e.arguments:
+			discordbot.HandleMessage(self, e.target, e.source, msg) #TODO: handle async func
 	
 	def send_message(self, channel, msg):
 		self.connection.privmsg(channel, msg)
+	
+	def getPermissionOverwrite(self):	#TODO: return permission for xategory creation
+		return None
 
 
 class IRCClientBot(IRCClientUser):
@@ -52,27 +59,11 @@ class IRCClientBot(IRCClientUser):
 	def on_pubmsg(self, c, e):
 		IRCClient.on_pubmsg(self, c, e)
 		for msg in e.arguments:
-			self.HandleMessage(e.target, e.source, msg)
+			discordbot.HandleMessage(self, e.target, e.source, msg) #TODO: handle async func
 
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
 		c.privmsg(e.target, "This is a bot account. All messages will be ignored.")
-	
-	def HandleMessage(self, chan, user, message):
-		message = message.replace("@", "(@)")		#Quickfix to disable highlights
-		
-		#Adds highlights
-		for k, v, in glob.highlight_list.items():
-			message = message.replace(k, v)
-		
-		#TODO: Forward message to discord
-		try:
-			#webhook = 
-			#req = requests.post("{}/slack".format(webhook), data=query)
-			pass
-		except:
-			pass
-
 
 	def on_part(self, c, e):
 		#check if its one of the ircClient users and login if they left

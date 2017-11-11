@@ -6,3 +6,4 @@ cached_users = {}
 highlight_list = {}
 sql = None
 discordclient = discord.Client()
+discordloop = discordclient.loop

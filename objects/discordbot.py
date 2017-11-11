@@ -38,6 +38,60 @@ async def on_message(msg):
 	else:
 		await msg.delete()
 
+async def HandleMessage(ircclient, channel, user, message):
+	message = message.replace("@", "(@)")		#Quickfix to disable highlights
+	
+	private = True
+	if channel.startswith("#"):
+		private = False
+		channel = channel[1:] #Remove first char so we got the raw channel name
+
+	if not private:
+		#Adds highlights
+		for k, v, in glob.highlight_list.items():
+			message = message.replace(k, v)
+	
+	try:
+		c = glob.discordclient.get_guild(glob.settings["discord_guild"])
+		cats = c.categories
+		#chas = c.text_channels
+		if private:
+			if not any(x.name in ircclient.usr_name for x in cats):
+				cat = await c.create_category(ircclient.usr_name) #ADD: overwrites=self.getPermissionOverwrite()
+			else:
+				cat = (c for x in cats if x.name == ircclient.usr_name) #cats[self.usr_name]
+			
+			if not any(x.name in channel for x in cat.channels):
+				chan = await c.create_text_channel(chan, category=cat)
+			else:
+				chan = (c for x in cat if x.name == channel) #cat[channel]
+			
+			if len(chan.webhooks()) == 0:
+				hook = await chan.create_webhook(ircclient.channel)
+			else:
+				hook = chan.webhooks()[0]
+		else:
+			if not any(x.name in glob.settings["discord_main_category"] for x in cats):
+				cat = await c.create_category(glob.settings["discord_main_category"]) #ADD: overwrites=self.getPermissionOverwrite()
+			else:
+				cat = (c for x in cats if x.name == glob.settings["discord_main_category"]) #cats[glob.settings["discord_main_category"]]
+			
+			if not any(x.name in channel for x in cat.channels):
+				chan = await c.create_text_channel(chan, category=cat)
+			else:
+				chan = (c for x in cat if x.name == channel) #cat[channel]
+			
+			if len(chan.webhooks()) == 0:
+				hook = await chan.create_webhook(ircclient.channel)
+			else:
+				hook = chan.webhooks()[0]
+
+		message = DiscordMessage(user, message) #Convert to discordmessage object for json serialization
+		query = json.dumps(message.__dict__)
+		req = requests.post("{}/slack".format(hook), data=query)
+	except:
+		pass
+
 def ForwardDiscordMessage(id, msg, channel):
 	client = glob.irc_clients[id]
 	cat = channel.category.name
