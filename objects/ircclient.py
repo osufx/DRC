@@ -57,10 +57,6 @@ class IRCClientUser(IRCClient):
 	
 	def send_message(self, channel, msg):
 		self.connection.privmsg(channel, msg)
-	
-	def getPermissionOverwrite(self):	#TODO: return permission for category creation
-		return None
-
 
 class IRCClientBot(IRCClientUser):
 	def __init__(self, usr_name, usr_token):
