@@ -59,7 +59,7 @@ async def HandleMessage(ircclient, channel, user, message):
 		#chas = c.text_channels
 		if private:
 			if not any(x.name in ircclient.usr_name for x in cats):
-				cat = await c.create_category(ircclient.usr_name) #ADD: overwrites=self.getPermissionOverwrite()
+				cat = await c.create_category(ircclient.usr_name, overwrites={ c.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),  glob.discordclient.get_user(ircclient.discord_snowflake): discord.PermissionOverwrite(add_reactions=True, read_messages=True, send_messages=True, embed_links=True, manage_messages=True, read_message_history=True, ) })
 			else:
 				cat = next(x for x in cats if x.name == ircclient.usr_name)
 
@@ -75,7 +75,7 @@ async def HandleMessage(ircclient, channel, user, message):
 				hook = hooks[0]
 		else:
 			if not any(x.name in glob.settings["discord_main_category"] for x in cats):
-				cat = await c.create_category(glob.settings["discord_main_category"]) #ADD: overwrites=self.getPermissionOverwrite()
+				cat = await c.create_category(glob.settings["discord_main_category"])
 			else:
 				cat = next(x for x in cats if x.name == glob.settings["discord_main_category"])
 			
@@ -93,8 +93,8 @@ async def HandleMessage(ircclient, channel, user, message):
 		message = DiscordMessage(user, message) #Convert to discordmessage object for json serialization
 		query = json.dumps(message.__dict__)
 		req = requests.post("{}/slack".format(hook), data=query)
-	except:
-		pass
+	except Exception as e:
+		print("ERROR: {}".format(e))
 
 def ForwardDiscordMessage(id, msg, channel):
 	client = glob.irc_clients[id]
