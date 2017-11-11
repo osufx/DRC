@@ -20,9 +20,9 @@ class Mysql(object):
 		rows = self.cursor.fetchall()
 		for row in rows:
 			if row["is_bot"]:
-				glob.irc_clients[row["discord_snowflake"]] = ircclient.IRCClientUser(row["discord_snowflake"], row["irc_username"], row["irc_token"], row["allow_dm"], row["always_online"], row["highlights"])
-			else:
 				glob.irc_clients[row["irc_username"]] = ircclient.IRCClientBot(row["irc_username"], row["irc_token"])
+			else:
+				glob.irc_clients[row["discord_snowflake"]] = ircclient.IRCClientUser(row["discord_snowflake"], row["irc_username"], row["irc_token"], row["allow_dm"], row["always_online"], row["highlights"])
 
 		#Setup highlight table
 		for key in glob.irc_clients.keys():

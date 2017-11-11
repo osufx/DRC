@@ -40,6 +40,9 @@ class IRCClientUser(IRCClient):
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
 		#TODO: Make discord channel inside the category (Do not assume it already exist even if it is created as users can delete them at any time)
+	
+	def send_message(self, channel, msg):
+		self.connection.privmsg(channel, msg)
 
 
 class IRCClientBot(IRCClientUser):
