@@ -1,5 +1,6 @@
 import discord
 import json
+import requests
 from objects import glob
 from objects import discordmessage as dMessage
 from objects import user as userObject
@@ -45,6 +46,7 @@ async def HandleMessage(ircclient, channel, user, message):
 	if not user in glob.cached_users.keys():
 		userObject.User(user)
 
+	no_lower_user = user
 	channel = channel.lower()		#Discord channels only accept lowercase
 	user = user.lower()				#^
 	message = message.replace("@", "(@)")		#Quickfix to disable highlights
@@ -96,9 +98,9 @@ async def HandleMessage(ircclient, channel, user, message):
 			else:
 				hook = hooks[0]
 
-		message = dMessage.DiscordMessage(user.replace(" ", "_"), message) #Convert to discordmessage object for json serialization
+		message = dMessage.DiscordMessage(no_lower_user.replace(" ", "_"), message) #Convert to discordmessage object for json serialization
 		query = json.dumps(message.__dict__)
-		req = requests.post("{}/slack".format(hook), data=query)
+		req = requests.post("{}/slack".format(hook.url), data=query)
 	except Exception as e:
 		logger.err(str(e))
 		#print("ERROR: {}".format(e))
