@@ -52,7 +52,7 @@ async def on_message(msg):
 		is_command = await HandleCommand(msg)
 		if not is_command:
 			await msg.delete()
-			await ForwardDiscordMessage(msg.author.id, msg.content, msg.channel)
+			await ForwardDiscordMessage(msg)
 	else:
 		await msg.delete()
 
@@ -137,17 +137,20 @@ async def HandleSelfMessage(client, chan, msg):
 	except Exception as e:
 		print("ERROR: {}".format(e))
 
-async def ForwardDiscordMessage(id, msg, channel):
-	client = glob.irc_clients[id]
+async def ForwardDiscordMessage(msg):
+	client = glob.irc_clients[msg.author.id]
 
 	if not client.connection.is_connected(): #Make sure client is online, if not try reconnect and if not warn user and return
-		client.tryReconnect()
+		connected = client.tryReconnect()
+		if not connected:
+			await msg.channel.send("<@{}> Your bot were unable to connect... please try again.".format(msg.author.id))
+			return
 
-	cat = channel.category.name
-	chan = channel.name
+	cat = msg.channel.category.name
+	chan = msg.channel.name
 	if glob.settings["discord_main_category"] == cat:
 		chan = "#{}".format(chan)
 	else:
 		chan = glob.cached_users[chan.lower()].username_safe
-		await HandleSelfMessage(client, channel, msg)
-	client.send_message(chan, msg)
+		await HandleSelfMessage(client, msg.channel, msg.content)
+	client.send_message(chan, msg.content)
