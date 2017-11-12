@@ -17,6 +17,9 @@ class Mysql(object):
 		for row in rows:
 			glob.settings[row["name"]] = row["value_string"] if row["value_int"] == None else row["value_int"]
 
+		#Ignore_categories setup
+		glob.ignore_categories = glob.settings["discord_ignore_categories"].split(",")
+
 		#Accounts
 		self.cursor.execute("SELECT * FROM accounts")
 		rows = self.cursor.fetchall()

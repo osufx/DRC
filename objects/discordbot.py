@@ -11,17 +11,14 @@ from objects import user as userObject
 async def on_ready():
 	print("Discord bot {} with id {} has logged in.".format(glob.discordclient.user.name, glob.discordclient.user.id))
 
-@glob.discordclient.event
-async def on_message(msg):
-	if msg.author.bot:  #Dont care about messages from bot accounts
-		return
-
+async def HandleCommand(msg):
 	#Handle message if discord_snowflake is in our account list
 	if msg.author.id in glob.irc_clients.keys():
 		if msg.content.startswith('.help'):
 			em = discord.Embed(description=".help       List all commands\n.status    Return status of an user ingame [.status sunpy]\n.online    Show yourself as online on irc\n.offline    Show yourself as offline in irc", colour=0x0000FF)
 			em.set_author(name="Commands", icon_url="http://i.imgur.com/CEYdeUi.png")
-			await glob.discordclient.send_message(msg.channel, embed=em)
+			await msg.channel.send(embed=em)
+			return True
 		elif msg.content.startswith('.status') or msg.content.startswith('.lookup'):
 			m = msg.content.split(' ', 1)
 			if len(m) >= 2:
@@ -32,12 +29,28 @@ async def on_message(msg):
 					color = min(silences * 16, 255) * 65536 + (255 - min(silences * 16, 255)) * 256
 					em = discord.Embed(description="ID: {}\nUsername_Safe: {}\nSilences: {}".format(usr.userid, usr.username_safe, silences), colour=color)
 					em.set_author(name=usr.username, icon_url=usr.avatar)
-					await glob.discordclient.send_message(msg.channel, embed=em)
+					await msg.channel.send(embed=em)
 				else:
-					await glob.discordclient.send_message(msg.channel, "{} was not found.".format(safe_usr_name))
+					await msg.channel.send("{} was not found.".format(safe_usr_name))
 			else:
-				await glob.discordclient.send_message(msg.channel, "Missing arguments. [Usage: `.lookup sunpy`]")
-		else:
+				await msg.channel.send("Missing arguments. [Usage: `.lookup sunpy`]")
+			return True
+	else:
+		return False
+
+@glob.discordclient.event
+async def on_message(msg):
+	if msg.author.bot:  #Dont care about messages from bot accounts
+		return
+
+	if msg.channel.category.name in glob.ignore_categories:
+		await HandleCommand(msg)
+		return
+
+	#Handle message if discord_snowflake is in our account list
+	if msg.author.id in glob.irc_clients.keys():
+		is_command = await HandleCommand(msg)
+		if not is_command:
 			await msg.delete()
 			await ForwardDiscordMessage(msg.author.id, msg.content, msg.channel)
 	else:
@@ -137,5 +150,4 @@ async def ForwardDiscordMessage(id, msg, channel):
 		chan = glob.cached_users[chan.lower()].username_safe
 		print("About to start async func")
 		await HandleSelfMessage(client, channel, msg)
-		print("Done with async func")
 	client.send_message(chan, msg)
