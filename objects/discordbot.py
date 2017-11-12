@@ -6,6 +6,7 @@ import asyncio
 from objects import glob
 from objects import discordmessage as dMessage
 from objects import user as userObject
+from ripple import MessageHandle as ripple
 
 @glob.discordclient.event
 async def on_ready():
@@ -60,6 +61,9 @@ async def HandleMessage(ircclient, channel, user, message):
 	#Cache user details if they are new
 	if not user.lower() in glob.cached_users.keys():
 		userObject.User(user)
+
+	if await ripple.handle(ircclient, channel, user, message):
+		return
 
 	no_lower_user = user
 	channel = channel.lower()		#Discord channels only accept lowercase

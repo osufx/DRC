@@ -34,4 +34,4 @@ class User(object):
 		glob.sql.cursor.execute("INSERT INTO cached_users VALUES ('{}', '{}', '{}', '{}', '{}');".format(self.userid, self.username, self.username_safe, self.avatar, self.silenced))
 	
 	def updateSilence(self):
-		glob.sql.cursor.execute("UPDATE cached_users SET silence = '{}' WHERE userid = {};".format(self.silenced, self.userid))
+		glob.sql.cursor.execute("UPDATE cached_users SET silenced = '{}' WHERE userid = {};".format(self.silenced, self.userid))
