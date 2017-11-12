@@ -113,4 +113,3 @@ def ForwardDiscordMessage(id, msg, channel):
 	if glob.settings["discord_main_category"] == cat:
 		chan = "#{}".format(chan)
 	client.send_message(chan, msg)
-	print("id={} msg={} channel={}".format(id, msg, "{}/{}".format(channel.category, channel.name)))

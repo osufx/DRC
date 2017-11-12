@@ -57,6 +57,7 @@ class IRCClientUser(IRCClient):
 	
 	def send_message(self, channel, msg):
 		self.connection.privmsg(channel, msg)
+		print("@{} {} <= {}".format(self.usr_name, channel, msg))
 
 class IRCClientBot(IRCClientUser):
 	def __init__(self, usr_name, usr_token):
