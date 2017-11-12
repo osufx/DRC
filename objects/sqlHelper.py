@@ -28,6 +28,7 @@ class Mysql(object):
 				glob.irc_clients[row["irc_username"]] = ircclient.IRCClientBot(row["irc_username"], row["irc_token"])
 			else:
 				glob.irc_clients[row["discord_snowflake"]] = ircclient.IRCClientUser(row["discord_snowflake"], row["irc_username"], row["irc_token"], row["allow_dm"], row["always_online"], json.loads(row["highlights"]))
+				glob.irc_snowflake_link[row["irc_username"]] = row["discord_snowflake"]
 
 		#Setup highlight table
 		for client in glob.irc_clients.values():

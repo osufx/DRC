@@ -2,6 +2,9 @@ import irc.bot
 import irc.strings
 import asyncio
 import discord
+import requests
+import json
+import time
 from objects import glob
 from objects import discordbot
 
@@ -17,9 +20,18 @@ def sawait(coro, loop): #Thanks Nyo-chan <3
 
 class Reconnect(irc.bot.ReconnectStrategy):
 	def run(self, bot):
-		if not bot.connection.is_connected():
-			print("disconnected")
-			bot.jump_server()
+		print("{} was disconnected.".format(bot.usr_name))
+		while not bot.connection.is_connected():
+			time.sleep(6) #Just incase something happened to the user while they try to connect
+			print("{}: Checking if user is online...".format(bot.usr_name))
+			req = requests.get("http://c.{}/api/v1/isOnline?u={}".format(glob.settings["osu_srv_frontend"], bot.usr_name))
+			status = json.loads(req.text)
+			if not status["result"]:
+				bot.jump_server()
+				print("{}: Reconnecting".format(bot.usr_name))
+			else:
+				print("{}: User is already logged in... waiting".format(bot.usr_name))
+				time.sleep(60)
 
 class IRCClient(irc.bot.SingleServerIRCBot):
 	def __init__(self, srv_addr, srv_port, usr_name, usr_token):
@@ -73,7 +85,11 @@ class IRCClientBot(IRCClientUser):
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
 		c.privmsg(e.source, "This is a bot account. All messages will be ignored.")
-
+"""
 	def on_part(self, c, e):
-		#check if its one of the ircClient users and login if they left
-		pass
+		if e.source in glob.irc_snowflake_link.keys(): #Check if its one of our irc client accounts
+			req = requests.get("http://c.{}/api/v1/isOnline?u={}".format(glob.settings["osu_srv_frontend"], e.source))
+			status = json.loads(req.text)
+			if not status["result"]:
+				glob.irc_clients[glob.irc_snowflake_link[e.source]].connect()
+"""
