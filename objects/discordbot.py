@@ -15,7 +15,7 @@ async def HandleCommand(msg):
 	#Handle message if discord_snowflake is in our account list
 	if msg.author.id in glob.irc_clients.keys():
 		if msg.content.startswith('.help'):
-			em = discord.Embed(description=".help       List all commands\n.status    Return status of an user ingame [.status sunpy]\n.online    Show yourself as online on irc\n.offline    Show yourself as offline in irc", colour=0x0000FF)
+			em = discord.Embed(description=".help       List all commands\n.status    Return status of an user ingame [.status sunpy]", colour=0x0000FF)
 			em.set_author(name="Commands", icon_url="http://i.imgur.com/CEYdeUi.png")
 			await msg.channel.send(embed=em)
 			return True
