@@ -30,8 +30,19 @@ class User(object):
 		self.userid = getID(self.username_safe)
 		self.username = getUsername(self.userid)
 		self.avatar = "http://a.{}/{}".format(glob.settings["osu_srv_frontend"], self.userid)
+		update = False
+		for e in glob.cached_users.keys():
+			if glob.cached_users[e].userid == self.userid:
+				del glob.cached_users[e]
+				update = True
+				break
+
 		glob.cached_users[self.username_safe.lower()] = self
-		glob.sql.cursor.execute("INSERT INTO cached_users VALUES ('{}', '{}', '{}', '{}', '{}');".format(self.userid, self.username, self.username_safe, self.avatar, self.silenced))
+		print("Cached user: {}".format(self.username))
+		if update == True:
+			glob.sql.cursor.execute("UPDATE cached_users SET username = '{}', username_safe = '{}' WHERE userid = {};".format(self.username, self.username_safe, self.userid))
+		else:
+			glob.sql.cursor.execute("INSERT INTO cached_users VALUES ('{}', '{}', '{}', '{}', '{}');".format(self.userid, self.username, self.username_safe, self.avatar, self.silenced))
 	
 	def updateSilence(self):
 		glob.sql.cursor.execute("UPDATE cached_users SET silenced = '{}' WHERE userid = {};".format(self.silenced, self.userid))

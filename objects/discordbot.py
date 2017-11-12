@@ -121,7 +121,7 @@ async def HandleMessage(ircclient, channel, user, message):
 		query = json.dumps(message.__dict__)
 		req = requests.post("{}/slack".format(hook.url), data=query)
 	except Exception as e:
-		print("ERROR: {}".format(e))
+		we.fprint("ERROR: {}".format(e))
 
 async def HandleSelfMessage(client, chan, msg):
 	#Cache user details if they are new
@@ -139,7 +139,7 @@ async def HandleSelfMessage(client, chan, msg):
 		query = json.dumps(msg.__dict__)
 		req = requests.post("{}/slack".format(hook.url), data=query)
 	except Exception as e:
-		print("ERROR: {}".format(e))
+		we.fprint("ERROR: {}".format(e))
 
 async def ForwardDiscordMessage(msg):
 	client = glob.irc_clients[msg.author.id]
