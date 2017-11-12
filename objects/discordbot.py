@@ -2,6 +2,7 @@ import discord
 import json
 import requests
 import re
+import asyncio
 from objects import glob
 from objects import discordmessage as dMessage
 from objects import user as userObject
@@ -38,7 +39,7 @@ async def on_message(msg):
 				await glob.discordclient.send_message(msg.channel, "Missing arguments. [Usage: `.lookup sunpy`]")
 		else:
 			await msg.delete()
-			ForwardDiscordMessage(msg.author.id, msg.content, msg.channel)
+			await ForwardDiscordMessage(msg.author.id, msg.content, msg.channel)
 	else:
 		await msg.delete()
 
@@ -105,7 +106,28 @@ async def HandleMessage(ircclient, channel, user, message):
 	except Exception as e:
 		print("ERROR: {}".format(e))
 
-def ForwardDiscordMessage(id, msg, channel):
+async def HandleSelfMessage(client, chan, msg):
+	print("Async start")
+	#Cache user details if they are new
+	if not client.usr_name.lower() in glob.cached_users.keys():
+		userObject.User(client.usr_name)
+	
+	try:
+		print("Before webhooks()")
+		hooks = await chan.webhooks()
+		print("After webhooks()")
+		if len(hooks) == 0:
+			hook = await chan.create_webhook(name="{}/{}".format(chan.category.name, chan.name))
+		else:
+			hook = hooks[0]
+		
+		msg = dMessage.DiscordMessage(client.usr_name.replace(" ","_"), msg)
+		query = json.dumps(msg.__dict__)
+		req = requests.post("{}/slack".format(hook.url), data=query)
+	except Exception as e:
+		print("ERROR: {}".format(e))
+
+async def ForwardDiscordMessage(id, msg, channel):
 	client = glob.irc_clients[id]
 	cat = channel.category.name
 	chan = channel.name
@@ -113,4 +135,7 @@ def ForwardDiscordMessage(id, msg, channel):
 		chan = "#{}".format(chan)
 	else:
 		chan = glob.cached_users[chan.lower()].username_safe
+		print("About to start async func")
+		await HandleSelfMessage(client, channel, msg)
+		print("Done with async func")
 	client.send_message(chan, msg)
