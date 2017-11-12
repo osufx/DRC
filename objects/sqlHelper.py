@@ -1,6 +1,7 @@
 import MySQLdb
 import MySQLdb.cursors
 from objects import ircclient
+from objects import user
 from objects import glob
 
 class Mysql(object):
@@ -29,4 +30,9 @@ class Mysql(object):
 			if glob.irc_clients[key].highlights != None:
 				for highlight in glob.irc_clients[key].highlights:
 					glob.highlight_list[highlight] = "<@{}>".format(key)
-
+		
+		#Cached Users
+		self.cursor.execute("SELECT * FROM cached_users")
+		rows = self.cursor.fetchall()
+		for row in rows:
+			glob.cached_users[row["username_safe"]] = user.User(row["username_safe"], row["userid"], row["username"], row["avatar"], row["silenced"])

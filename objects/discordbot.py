@@ -1,6 +1,8 @@
 import discord
 import json
 from objects import glob
+from objects import discordmessage as dMessage
+from objects import user as userObject
 
 @glob.discordclient.event
 async def on_ready():
@@ -39,6 +41,10 @@ async def on_message(msg):
 		await msg.delete()
 
 async def HandleMessage(ircclient, channel, user, message):
+	#Cache user details if they are new
+	if not user in glob.cached_users.keys():
+		userObject.User(user)
+
 	channel = channel.lower()		#Discord channels only accept lowercase
 	user = user.lower()				#^
 	message = message.replace("@", "(@)")		#Quickfix to disable highlights
@@ -90,11 +96,12 @@ async def HandleMessage(ircclient, channel, user, message):
 			else:
 				hook = hooks[0]
 
-		message = DiscordMessage(user, message) #Convert to discordmessage object for json serialization
+		message = dMessage.DiscordMessage(user.replace(" ", "_"), message) #Convert to discordmessage object for json serialization
 		query = json.dumps(message.__dict__)
 		req = requests.post("{}/slack".format(hook), data=query)
 	except Exception as e:
-		print("ERROR: {}".format(e))
+		logger.err(str(e))
+		#print("ERROR: {}".format(e))
 
 def ForwardDiscordMessage(id, msg, channel):
 	client = glob.irc_clients[id]
