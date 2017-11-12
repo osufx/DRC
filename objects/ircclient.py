@@ -52,6 +52,8 @@ class IRCClientUser(IRCClient):
 	
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
+		if not self.allow_dm:
+			return
 		for msg in e.arguments:
 			sawait(discordbot.HandleMessage(self, e.target, e.source, msg), glob.discordloop)
 	
