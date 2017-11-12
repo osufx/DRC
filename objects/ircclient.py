@@ -70,7 +70,7 @@ class IRCClientBot(IRCClientUser):
 
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
-		c.privmsg(e.target, "This is a bot account. All messages will be ignored.")
+		c.privmsg(e.source, "This is a bot account. All messages will be ignored.")
 
 	def on_part(self, c, e):
 		#check if its one of the ircClient users and login if they left
