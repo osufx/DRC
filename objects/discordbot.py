@@ -1,6 +1,7 @@
 import discord
 import json
 import requests
+import re
 from objects import glob
 from objects import discordmessage as dMessage
 from objects import user as userObject
@@ -59,8 +60,7 @@ async def HandleMessage(ircclient, channel, user, message):
 	if not private:
 		#Adds highlights
 		for k, v, in glob.highlight_list.items():
-			print("k:{} v:{} message:{} new_message:{}".format(k, v, message, message.replace(k, v)))
-			message = message.replace(k, v)
+			message = re.sub(k, v, message, flags=re.IGNORECASE)
 	
 	try:
 		c = glob.discordclient.get_guild(glob.settings["discord_guild"])
