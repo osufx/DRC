@@ -139,6 +139,10 @@ async def HandleSelfMessage(client, chan, msg):
 
 async def ForwardDiscordMessage(id, msg, channel):
 	client = glob.irc_clients[id]
+
+	if not client.connection.is_connected(): #Make sure client is online, if not try reconnect and if not warn user and return
+		client.tryReconnect()
+
 	cat = channel.category.name
 	chan = channel.name
 	if glob.settings["discord_main_category"] == cat:

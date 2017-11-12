@@ -23,14 +23,8 @@ class Reconnect(irc.bot.ReconnectStrategy):
 		print("{} was disconnected.".format(bot.usr_name))
 		while not bot.connection.is_connected():
 			time.sleep(6) #Just incase something happened to the user while they try to connect
-			print("{}: Checking if user is online...".format(bot.usr_name))
-			req = requests.get("http://c.{}/api/v1/isOnline?u={}".format(glob.settings["osu_srv_frontend"], bot.usr_name))
-			status = json.loads(req.text)
-			if not status["result"]:
-				bot.jump_server()
-				print("{}: Reconnecting".format(bot.usr_name))
-			else:
-				print("{}: User is already logged in... waiting".format(bot.usr_name))
+			connected = bot.tryReconnect()
+			if not connected: #We didnt connect; retry in 1 min
 				time.sleep(60)
 
 class IRCClient(irc.bot.SingleServerIRCBot):
@@ -50,6 +44,21 @@ class IRCClient(irc.bot.SingleServerIRCBot):
 	def on_pubmsg(self, c, e):
 		for msg in e.arguments:
 			print("@{} {}:{} => {}".format(self.usr_name, e.target, e.source, msg))
+
+	def isOnline(self):
+		req = requests.get("http://c.{}/api/v1/isOnline?u={}".format(glob.settings["osu_srv_frontend"], self.usr_name))
+		status = json.loads(req.text)
+		return status["result"]
+
+	def tryReconnect(self):
+		print("{}: Checking if user is online...".format(self.usr_name))
+		if not self.isOnline():
+			self.jump_server()
+			print("{}: Reconnecting".format(self.usr_name))
+			return True
+		else:
+			print("{}: User is already logged in... waiting".format(self.usr_name))
+			return False
 
 class IRCClientUser(IRCClient):
 	def __init__(self, discord_snowflake, usr_name, usr_token, allow_dm, always_online, highlights):
