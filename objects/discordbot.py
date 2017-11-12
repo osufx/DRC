@@ -59,6 +59,7 @@ async def HandleMessage(ircclient, channel, user, message):
 	if not private:
 		#Adds highlights
 		for k, v, in glob.highlight_list.items():
+			print("k:{} v:{} message:{} new_message:{}".format(k, v, message, message.replace(k, v)))
 			message = message.replace(k, v)
 	
 	try:

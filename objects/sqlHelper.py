@@ -1,5 +1,6 @@
 import MySQLdb
 import MySQLdb.cursors
+import json
 from objects import ircclient
 from objects import user
 from objects import glob
@@ -23,13 +24,12 @@ class Mysql(object):
 			if row["is_bot"]:
 				glob.irc_clients[row["irc_username"]] = ircclient.IRCClientBot(row["irc_username"], row["irc_token"])
 			else:
-				glob.irc_clients[row["discord_snowflake"]] = ircclient.IRCClientUser(row["discord_snowflake"], row["irc_username"], row["irc_token"], row["allow_dm"], row["always_online"], row["highlights"])
+				glob.irc_clients[row["discord_snowflake"]] = ircclient.IRCClientUser(row["discord_snowflake"], row["irc_username"], row["irc_token"], row["allow_dm"], row["always_online"], json.loads(row["highlights"]))
 
 		#Setup highlight table
-		for key in glob.irc_clients.keys():
-			if glob.irc_clients[key].highlights != None:
-				for highlight in glob.irc_clients[key].highlights:
-					glob.highlight_list[highlight] = "<@{}>".format(key)
+		for client in glob.irc_clients.values():
+			for highlight in client.highlights:
+				glob.highlight_list[highlight] = "<@{}>".format(client.discord_snowflake)
 		
 		#Cached Users
 		self.cursor.execute("SELECT * FROM cached_users")
