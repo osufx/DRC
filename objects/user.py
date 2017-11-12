@@ -24,13 +24,13 @@ class User(object):
 		self.userid = userid
 		self.username = username
 		self.avatar = avatar
-		glob.cached_users[username_safe] = self
+		glob.cached_users[username_safe.lower()] = self
 
 	def lookup(self):
 		self.userid = getID(self.username_safe)
 		self.username = getUsername(self.userid)
 		self.avatar = "http://a.{}/{}".format(glob.settings["osu_srv_frontend"], self.userid)
-		glob.cached_users[self.username_safe] = self
+		glob.cached_users[self.username_safe.lower()] = self
 		glob.sql.cursor.execute("INSERT INTO cached_users VALUES ('{}', '{}', '{}', '{}', '{}');".format(self.userid, self.username, self.username_safe, self.avatar, self.silenced))
 	
 	def updateSilence(self):

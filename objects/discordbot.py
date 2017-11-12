@@ -26,7 +26,7 @@ async def on_message(msg):
 			if len(m) >= 2:
 				safe_usr_name = "_".join(m[1:])
 				if safe_usr_name in glob.cached_users.keys():
-					usr = glob.cached_users[safe_usr_name]
+					usr = glob.cached_users[safe_usr_name.lower()]
 					silences = usr.silenced
 					color = min(silences * 16, 255) * 65536 + (255 - min(silences * 16, 255)) * 256
 					em = discord.Embed(description="ID: {}\nUsername_Safe: {}\nSilences: {}".format(usr.userid, usr.username_safe, silences), colour=color)
@@ -44,7 +44,7 @@ async def on_message(msg):
 
 async def HandleMessage(ircclient, channel, user, message):
 	#Cache user details if they are new
-	if not user in glob.cached_users.keys():
+	if not user.lower() in glob.cached_users.keys():
 		userObject.User(user)
 
 	no_lower_user = user
@@ -103,8 +103,7 @@ async def HandleMessage(ircclient, channel, user, message):
 		query = json.dumps(message.__dict__)
 		req = requests.post("{}/slack".format(hook.url), data=query)
 	except Exception as e:
-		logger.err(str(e))
-		#print("ERROR: {}".format(e))
+		print("ERROR: {}".format(e))
 
 def ForwardDiscordMessage(id, msg, channel):
 	client = glob.irc_clients[id]
@@ -112,4 +111,6 @@ def ForwardDiscordMessage(id, msg, channel):
 	chan = channel.name
 	if glob.settings["discord_main_category"] == cat:
 		chan = "#{}".format(chan)
+	else:
+		chan = glob.cached_users[chan.lower()].username_safe
 	client.send_message(chan, msg)

@@ -35,4 +35,4 @@ class Mysql(object):
 		self.cursor.execute("SELECT * FROM cached_users")
 		rows = self.cursor.fetchall()
 		for row in rows:
-			glob.cached_users[row["username_safe"]] = user.User(row["username_safe"], row["userid"], row["username"], row["avatar"], row["silenced"])
+			glob.cached_users[row["username_safe"].lower()] = user.User(row["username_safe"], row["userid"], row["username"], row["avatar"], row["silenced"])
