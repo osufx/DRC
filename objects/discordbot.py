@@ -7,6 +7,7 @@ from objects import glob
 from objects import discordmessage as dMessage
 from objects import user as userObject
 from ripple import MessageHandle as ripple
+from helpers import stringhelper as stringHelper
 
 @glob.discordclient.event
 async def on_ready():
@@ -78,7 +79,7 @@ async def HandleMessage(ircclient, channel, user, message):
 	if not private:
 		#Adds highlights
 		for k, v, in glob.highlight_list.items():
-			message = re.sub(k, v, message, flags=re.IGNORECASE)
+			message = stringHelper.Replace("[^a-zA-Z0-9_\-]{1}" + k + "[^a-zA-Z0-9_\-]{1}", v, message, pad_left=1, pad_right=1, wrap=True, flags=re.I) #re.sub(k, v, message, flags=re.IGNORECASE)
 	
 	try:
 		c = glob.discordclient.get_guild(glob.settings["discord_guild"])
