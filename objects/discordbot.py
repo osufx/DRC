@@ -120,15 +120,12 @@ async def HandleMessage(ircclient, channel, user, message):
 		print("ERROR: {}".format(e))
 
 async def HandleSelfMessage(client, chan, msg):
-	print("Async start")
 	#Cache user details if they are new
 	if not client.usr_name.lower() in glob.cached_users.keys():
 		userObject.User(client.usr_name)
 	
 	try:
-		print("Before webhooks()")
 		hooks = await chan.webhooks()
-		print("After webhooks()")
 		if len(hooks) == 0:
 			hook = await chan.create_webhook(name="{}/{}".format(chan.category.name, chan.name))
 		else:
@@ -148,6 +145,5 @@ async def ForwardDiscordMessage(id, msg, channel):
 		chan = "#{}".format(chan)
 	else:
 		chan = glob.cached_users[chan.lower()].username_safe
-		print("About to start async func")
 		await HandleSelfMessage(client, channel, msg)
 	client.send_message(chan, msg)
