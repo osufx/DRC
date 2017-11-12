@@ -36,6 +36,9 @@ class IRCClient(irc.bot.SingleServerIRCBot):
 	def on_welcome(self, c, e):
 		for channel in glob.settings["irc_srv_channels"].split(","):
 			c.join(channel)
+	
+	def on_nicknameinuse(self, c, e):
+		c.disconnect()
 
 	def on_privmsg(self, c, e):
 		for msg in e.arguments:
