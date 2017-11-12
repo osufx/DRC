@@ -23,9 +23,9 @@ async def HandleCommand(msg):
 		elif msg.content.startswith('.status') or msg.content.startswith('.lookup'):
 			m = msg.content.split(' ', 1)
 			if len(m) >= 2:
-				safe_usr_name = "_".join(m[1:])
+				safe_usr_name = "_".join(m[1:]).lower()
 				if safe_usr_name in glob.cached_users.keys():
-					usr = glob.cached_users[safe_usr_name.lower()]
+					usr = glob.cached_users[safe_usr_name]
 					silences = usr.silenced
 					color = min(silences * 16, 255) * 65536 + (255 - min(silences * 16, 255)) * 256
 					em = discord.Embed(description="ID: {}\nUsername_Safe: {}\nSilences: {}".format(usr.userid, usr.username_safe, silences), colour=color)
