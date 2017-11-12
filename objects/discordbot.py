@@ -97,7 +97,7 @@ async def HandleMessage(ircclient, channel, user, message):
 			else:
 				hook = hooks[0]
 		else:
-			if not any(x.name in glob.settings["discord_main_category"] for x in cats):
+			if not any(x.name == glob.settings["discord_main_category"] for x in cats):
 				cat = await c.create_category(glob.settings["discord_main_category"])
 			else:
 				cat = next(x for x in cats if x.name == glob.settings["discord_main_category"])
