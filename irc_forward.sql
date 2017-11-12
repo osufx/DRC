@@ -43,18 +43,9 @@ INSERT INTO `settings` (`name`, `value_int`, `value_string`) VALUES
 ('irc_srv_channels', NULL, '#osu,#admin,#lobby'),
 ('discord_token', NULL, '-DISCORD-TOKEN-'),
 ('osu_srv_frontend', NULL, '-RIPPLE-SERVER-'),
-('discord_main_category', NULL, '-MAIN-CATEGORY-');
-
-CREATE TABLE `webhooks` (
-  `id` int(11) NOT NULL,
-  `channel` varchar(64) NOT NULL,
-  `webhook` varchar(128) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-INSERT INTO `webhooks` (`id`, `channel`, `webhook`) VALUES
-(1, '-MAIN-CATEGORY-/osu', '-WEBHOOK-'),
-(2, '-MAIN-CATEGORY-/admin', '-WEBHOOK-'),
-(3, '-MAIN-CATEGORY-/lobby', '-WEBHOOK-');
+('discord_main_category', NULL, '-MAIN-CATEGORY-'),
+('discord_guild', 123456789000000000, ''),
+('discord_ignore_categories', NULL, '-IGNORE-ME-');
 
 
 ALTER TABLE `accounts`
@@ -66,12 +57,6 @@ ALTER TABLE `cached_users`
 ALTER TABLE `settings`
   ADD UNIQUE KEY `name` (`name`);
 
-ALTER TABLE `webhooks`
-  ADD PRIMARY KEY (`id`);
-
-
-ALTER TABLE `webhooks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
