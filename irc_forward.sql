@@ -16,12 +16,13 @@ CREATE TABLE `accounts` (
   `allow_dm` tinyint(1) NOT NULL,
   `always_online` tinyint(1) NOT NULL,
   `is_bot` tinyint(1) NOT NULL,
-  `highlights` json NOT NULL
+  `highlights` json NOT NULL,
+  `always_highlight` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-INSERT INTO `accounts` (`discord_snowflake`, `irc_username`, `irc_token`, `allow_dm`, `always_online`, `is_bot`, `highlights`) VALUES
-(147630584619991040, 'Sunpy', '-TOKEN-', 1, 1, 0, '["sunpy", "emily"]'),
-(-1, 'DiscordBot', '-TOKEN-', 1, 1, 1, '[]');
+INSERT INTO `accounts` (`discord_snowflake`, `irc_username`, `irc_token`, `allow_dm`, `always_online`, `is_bot`, `highlights`, `always_highlight`) VALUES
+(147630584619991040, 'Sunpy', '-TOKEN-', 1, 1, 0, '["sunpy", "emily"]', 0),
+(-1, 'DiscordBot', '-TOKEN-', 1, 1, 1, '[]', 0);
 
 CREATE TABLE `cached_users` (
   `userid` int(11) NOT NULL,

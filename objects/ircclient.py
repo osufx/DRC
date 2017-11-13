@@ -64,11 +64,12 @@ class IRCClient(irc.bot.SingleServerIRCBot):
 			return False
 
 class IRCClientUser(IRCClient):
-	def __init__(self, discord_snowflake, usr_name, usr_token, allow_dm, always_online, highlights):
+	def __init__(self, discord_snowflake, usr_name, usr_token, allow_dm, always_online, highlights, always_highlight = False):
 		self.discord_snowflake = discord_snowflake
 		self.allow_dm = allow_dm
 		self.always_online = always_online
 		self.highlights = highlights
+		self.always_highlight = always_highlight
 		IRCClient.__init__(self, glob.settings["irc_srv_addr"], glob.settings["irc_srv_port"], usr_name, usr_token)
 
 	def on_pubmsg(self, c, e):

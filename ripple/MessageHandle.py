@@ -15,5 +15,3 @@ async def handle(ircclient, channel, user, message):
 	if user.lower() in ["fokabot"]:
 		return True
 	return False
-
-#################TODO: check if it throws error if its not space username (emily_sunpy)

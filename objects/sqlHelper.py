@@ -27,7 +27,7 @@ class Mysql(object):
 			if row["is_bot"]:
 				glob.irc_clients[row["irc_username"]] = ircclient.IRCClientBot(row["irc_username"], row["irc_token"])
 			else:
-				glob.irc_clients[row["discord_snowflake"]] = ircclient.IRCClientUser(row["discord_snowflake"], row["irc_username"], row["irc_token"], row["allow_dm"], row["always_online"], json.loads(row["highlights"]))
+				glob.irc_clients[row["discord_snowflake"]] = ircclient.IRCClientUser(row["discord_snowflake"], row["irc_username"], row["irc_token"], row["allow_dm"], row["always_online"], json.loads(row["highlights"]), row["always_highlight"])
 				glob.irc_snowflake_link[row["irc_username"]] = row["discord_snowflake"]
 
 		#Setup highlight table
