@@ -47,6 +47,10 @@ class IRCClient(irc.bot.SingleServerIRCBot):
 	def on_pubmsg(self, c, e):
 		for msg in e.arguments:
 			print("@{} {}:{} => {}".format(self.usr_name, e.target, e.source, msg))
+	
+	def on_action(self, c, e):
+		for msg in e.arguments:
+			print("@{} {}:{} => {} -> {}".format(self.usr_name, e.target, e.source, e.type, msg))
 
 	def isOnline(self):
 		req = requests.get("http://c.{}/api/v1/isOnline?u={}".format(glob.settings["osu_srv_frontend"], self.usr_name))
@@ -74,6 +78,12 @@ class IRCClientUser(IRCClient):
 
 	def on_pubmsg(self, c, e):
 		pass
+
+	def on_action(self, c, e):
+		IRCClient.on_action(self, c, e)
+		if not e.target.startswith("#"):
+			for msg in e.arguments:
+				sawait(discordbot.HandleAction(self, e.target, e.source, msg), glob.discordloop)
 	
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
@@ -98,6 +108,13 @@ class IRCClientBot(IRCClientUser):
 	def on_privmsg(self, c, e):
 		IRCClient.on_privmsg(self, c, e)
 		c.privmsg(e.source, "This is a bot account. All messages will be ignored.")
+	
+	def on_action(self, c, e):
+		IRCClient.on_action(self, c, e)
+		if e.target.startswith("#"):
+			for msg in e.arguments:
+				sawait(discordbot.HandleAction(self, e.target, e.source, msg), glob.discordloop)
+
 """
 	def on_part(self, c, e):
 		if e.source in glob.irc_snowflake_link.keys(): #Check if its one of our irc client accounts

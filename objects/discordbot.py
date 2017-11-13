@@ -62,7 +62,8 @@ async def HandleMessage(ircclient, channel, user, message):
 	if not user.lower() in glob.cached_users.keys():
 		userObject.User(user)
 
-	await ripple.handle(ircclient, channel, user, message)
+	if await ripple.handle(ircclient, channel, user, message):
+		return
 
 	no_lower_user = user
 	channel = channel.lower()		#Discord channels only accept lowercase
@@ -84,7 +85,6 @@ async def HandleMessage(ircclient, channel, user, message):
 	try:
 		c = glob.discordclient.get_guild(glob.settings["discord_guild"])
 		cats = c.categories
-		#chas = c.text_channels
 		if private:
 			if not any(x.name in ircclient.usr_name for x in cats):
 				cat = await c.create_category(ircclient.usr_name, overwrites={ c.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),  glob.discordclient.get_user(ircclient.discord_snowflake): discord.PermissionOverwrite(add_reactions=True, read_messages=True, send_messages=True, embed_links=True, manage_messages=True, read_message_history=True, ) })
@@ -139,6 +139,61 @@ async def HandleSelfMessage(client, chan, message):
 		await hook.send(content=message, username=usr.username, avatar_url=usr.avatar)
 	except Exception as e:
 		print("ERROR: {}".format(e))
+
+async def HandleAction(ircclient, channel, user, message):
+	#Cache user details if they are new
+	if not user.lower() in glob.cached_users.keys():
+		userObject.User(user)
+	
+	channel = channel.lower()		#Discord channels only accept lowercase
+	user = user.lower()				#^
+
+	private = True
+	if channel.startswith("#"):
+		private = False
+		channel = channel[1:] #Remove first char so we got the raw channel name
+
+	try:
+		c = glob.discordclient.get_guild(glob.settings["discord_guild"])
+		cats = c.categories
+		if private:
+			if not any(x.name in ircclient.usr_name for x in cats):
+				cat = await c.create_category(ircclient.usr_name, overwrites={ c.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),  glob.discordclient.get_user(ircclient.discord_snowflake): discord.PermissionOverwrite(add_reactions=True, read_messages=True, send_messages=True, embed_links=True, manage_messages=True, read_message_history=True, ) })
+			else:
+				cat = next(x for x in cats if x.name == ircclient.usr_name)
+
+			if not any(x.name in user for x in cat.channels):
+				chan = await c.create_text_channel(user, category=cat)
+			else:
+				chan = next(x for x in cat.channels if x.name == user)
+
+			hooks = await chan.webhooks()
+			if len(hooks) == 0:
+				hook = await chan.create_webhook(name="{}/{}".format(cat.name, chan.name))
+			else:
+				hook = hooks[0]
+		else:
+			if not any(x.name == glob.settings["discord_main_category"] for x in cats):
+				cat = await c.create_category(glob.settings["discord_main_category"])
+			else:
+				cat = next(x for x in cats if x.name == glob.settings["discord_main_category"])
+			
+			if not any(x.name in channel for x in cat.channels):
+				chan = await c.create_text_channel(channel, category=cat)
+			else:
+				chan = next(x for x in cat.channels if x.name == channel)
+			
+			hooks = await chan.webhooks()
+			if len(hooks) == 0:
+				hook = await chan.create_webhook(name="#{}".format(chan.name))
+			else:
+				hook = hooks[0]
+
+		usr = glob.cached_users[user.replace(" ", "_")]
+		embed = await ripple.handleAction(usr, message)
+		await hook.send(content=None, username=usr.username, avatar_url=usr.avatar, embed=embed)
+	except Exception as e:
+		fprint("ERROR: {}".format(e))
 
 async def ForwardDiscordMessage(msg):
 	client = glob.irc_clients[msg.author.id]
