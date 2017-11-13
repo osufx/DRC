@@ -1,6 +1,5 @@
 import discord
 import json
-import requests
 import re
 import asyncio
 from objects import glob
@@ -120,13 +119,12 @@ async def HandleMessage(ircclient, channel, user, message):
 			else:
 				hook = hooks[0]
 
-		message = dMessage.DiscordMessage(no_lower_user.replace(" ", "_"), message) #Convert to discordmessage object for json serialization
-		query = json.dumps(message.__dict__)
-		req = requests.post("{}/slack".format(hook.url), data=query)
+		usr = glob.cached_users[user]
+		await hook.send(content=message, username=usr.username, avatar_url=usr.avatar)
 	except Exception as e:
-		we.fprint("ERROR: {}".format(e))
+		print("ERROR: {}".format(e))
 
-async def HandleSelfMessage(client, chan, msg):
+async def HandleSelfMessage(client, chan, message):
 	#Cache user details if they are new
 	if not client.usr_name.lower() in glob.cached_users.keys():
 		userObject.User(client.usr_name)
@@ -138,11 +136,10 @@ async def HandleSelfMessage(client, chan, msg):
 		else:
 			hook = hooks[0]
 		
-		msg = dMessage.DiscordMessage(client.usr_name.replace(" ","_"), msg)
-		query = json.dumps(msg.__dict__)
-		req = requests.post("{}/slack".format(hook.url), data=query)
+		usr = glob.cached_users[client.usr_name.lower().replace(" ", "_")]
+		await hook.send(content=message, username=usr.username, avatar_url=usr.avatar)
 	except Exception as e:
-		we.fprint("ERROR: {}".format(e))
+		print("ERROR: {}".format(e))
 
 async def ForwardDiscordMessage(msg):
 	client = glob.irc_clients[msg.author.id]
