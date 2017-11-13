@@ -82,8 +82,6 @@ async def HandleMessage(ircclient, channel, user, message):
 			if c.always_highlight or c.connection.is_connected():
 				for highlight in c.highlights:
 					message = stringHelper.Replace("[^a-zA-Z0-9_\-]{1}" + c.usr_name.lower() + "[^a-zA-Z0-9_\-]{1}", "<@{}>".format(c.discord_snowflake), message, pad_left=1, pad_right=1, wrap=True, flags=re.I)
-		#for k, v, in glob.highlight_list.items():
-			#message = stringHelper.Replace("[^a-zA-Z0-9_\-]{1}" + k + "[^a-zA-Z0-9_\-]{1}", v, message, pad_left=1, pad_right=1, wrap=True, flags=re.I) #re.sub(k, v, message, flags=re.IGNORECASE)
 	
 	try:
 		c = glob.discordclient.get_guild(glob.settings["discord_guild"])

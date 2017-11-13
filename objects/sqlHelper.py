@@ -29,11 +29,6 @@ class Mysql(object):
 			else:
 				glob.irc_clients[row["discord_snowflake"]] = ircclient.IRCClientUser(row["discord_snowflake"], row["irc_username"], row["irc_token"], row["allow_dm"], row["always_online"], json.loads(row["highlights"]), row["always_highlight"])
 				glob.irc_snowflake_link[row["irc_username"]] = row["discord_snowflake"]
-
-		#Setup highlight table
-		for client in glob.irc_clients.values():
-			for highlight in client.highlights:
-				glob.highlight_list[highlight] = "<@{}>".format(client.discord_snowflake)
 		
 		#Cached Users
 		self.cursor.execute("SELECT * FROM cached_users")
