@@ -62,8 +62,7 @@ async def HandleMessage(ircclient, channel, user, message):
 	if not user.lower() in glob.cached_users.keys():
 		userObject.User(user)
 
-	if await ripple.handle(ircclient, channel, user, message):
-		return
+	await ripple.handle(ircclient, channel, user, message)
 
 	no_lower_user = user
 	channel = channel.lower()		#Discord channels only accept lowercase
