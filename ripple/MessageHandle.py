@@ -25,6 +25,10 @@ async def handleAction(user, message):
 		url = message[(message.find("[") + 1):].split(" ")[0]
 
 		url_split = url.split("/")
+
+		if url_split[-3] != "osu.ppy.sh":
+			raise Exception('Not an osu url!')
+
 		beatmap_lookup_method = url_split[-2]
 		beatmap_lookup = url_split[-1]
 
