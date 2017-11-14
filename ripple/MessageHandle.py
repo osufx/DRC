@@ -50,7 +50,9 @@ async def handleAction(user, message):
 		embed.set_thumbnail(url=thumb)
 
 		if action in ["playing","watching"]:
-			embed.set_footer(text=message[-(message[::-1].find("]")):])
+			index = message[::-1].find("]")
+			if index is not 0:
+				embed.set_footer(text=message[-index:])
 
 		return embed
 	except Exception as e:
