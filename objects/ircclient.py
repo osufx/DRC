@@ -90,7 +90,7 @@ class IRCClientUser(IRCClient):
 		if not self.allow_dm:
 			return
 		for msg in e.arguments:
-			sawait(discordbot.HandleMessage(self, e.target, e.source, msg), glob.discordloop)
+			sawait(discordbot.HandleMessage(self, e.target, e.source, msg, True), glob.discordloop)
 	
 	def send_message(self, channel, msg):
 		self.connection.privmsg(channel, msg)
