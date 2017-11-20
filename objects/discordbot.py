@@ -57,7 +57,7 @@ async def on_message(msg):
 	else:
 		await msg.delete()
 
-async def HandleMessage(ircclient, channel, user, message):
+async def HandleMessage(ircclient, channel, user, message highlight_dm = False):
 	#Cache user details if they are new
 	if not user.lower() in glob.cached_users.keys():
 		userObject.User(user)
@@ -120,6 +120,8 @@ async def HandleMessage(ircclient, channel, user, message):
 
 		usr = glob.cached_users[user]
 		await hook.send(content=message, username=usr.username, avatar_url=usr.avatar)
+		if highlight_dm and private:
+			chan.send(content="<@{}>".format(ircclient.discord_snowflake), delete_after=0.1)
 	except Exception as e:
 		print("ERROR: {}".format(e))
 
